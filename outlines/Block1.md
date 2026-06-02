@@ -1,10 +1,11 @@
-# Block 1 — Foundations of Generative AI (1.1–1.4)
+# Block 1 — Foundations of Generative AI (1.1–1.5)
 
 **Slide-deck outline (build notes, not finished slides).**
 Part of *AI at the Gates: The DBA's Guide to Surviving in an LLM World*.
 
-- **Duration:** Block 1 is 90 min (8:30 – 10:00). This file covers **1.1–1.4**
-  (~65 min); 1.5 "Convincing the Boss" is outlined separately.
+- **Duration:** Block 1 is 90 min (8:30 – 10:00). **1.1–1.4** (~65 min, concept
+  foundations, Kevin) + **1.5 "Convincing the Boss"** (~15 min, the people problem,
+  Jonathan — closes the block and sets up 6.4).
 - **Audience:** Database professionals — DBAs, data engineers, database
   developers. Strong relational/T-SQL skills; **do not** assume linear algebra,
   trigonometry, or ML background. Build intuition from things they already know
@@ -275,7 +276,7 @@ deliberate forward-reference to where the SQL Server 2025 mechanics live. A shor
 
 ---
 
-## Section 1.5 wrap-in (1 slide, ~1 min)
+## Section 1.4 wrap-in (1 slide, ~1 min)
 
 ### Slide 1.W — Mental model recap
 - One line to remember: **text → tokens → embeddings (vectors) → similarity →
@@ -284,6 +285,76 @@ deliberate forward-reference to where the SQL Server 2025 mechanics live. A shor
   chain.
 - Next (1.5): the people problem — hype, fear, and convincing skeptical seniors.
 - **Image idea:** The five-link chain assembled, each link an icon from this block.
+
+---
+
+## Section 1.5 — Convincing the Boss `[JS]` (5 slides, ~15 min, closes the block)
+
+> The bridge from "how it works" to "why your org should care." Hand attendees the
+> language to win over skeptical leadership — and to spot when the skepticism is
+> *correct*. Plants the seed that 6.4 (Adoption Roadmap) pays off at 5:00 PM.
+> Discussion/framing — **no demo** (optional: one real, sanitized before/after
+> time-savings number as a credibility anchor). `[→ 6.4]`
+
+### Slide 1.5.1 — The gap, and the honest pitch (hook)
+- "You understand how this works now. Your boss doesn't — and the person signing the
+  PO trusts a vendor demo and a LinkedIn post more than they trust you. This section
+  closes that gap without making you the hype person."
+- Posture: we're not selling AI; we're making a *defensible* case — being the person
+  who can name the risks out loud. That credibility is the whole game.
+- **Image idea:** A presenter between an excited "believer" and a skeptical "boss,"
+  holding a one-page plan.
+
+### Slide 1.5.2 — The four people you're selling to
+- **The True Believer** (often CEO/VP) — saw a demo, wants "AI" on the roadmap, no
+  specifics. Danger: budget without direction.
+- **The Terrified** — fears a hallucinated `DROP TABLE` in prod or PII leaking to a
+  vendor; often security/compliance. *Frequently your best ally* — their questions are
+  the ones you want answered.
+- **The Burned** — lived through "big data," "blockchain," "low-code replaces devs."
+  Skepticism earned, not irrational.
+- **The Quietly Already-Using-It** — pasting prod schemas into ChatGPT right now. Say
+  "no" and you don't stop it — you just stop *knowing about it*.
+- > Key line: "Every one is partly right. Your job isn't to defeat them — it's to give
+  each the specific thing they need to say yes."
+- **Image idea:** Four labeled archetype cards around a boardroom table.
+
+### Slide 1.5.3 — The two ways AI initiatives die (pick the middle)
+- **Over-promise** → "It'll write all our T-SQL." First wrong answer in prod, project
+  dead, you own the blame. `[→ 5.1]`
+- **Over-fear** → "We can't use it, it's a data-leak risk." Competitors ship faster;
+  your team uses it in the shadows anyway.
+- The honest pitch sits in the middle: **AI is a force multiplier for people who
+  already know what good looks like, and a liability amplifier for people who don't.**
+- > Key line: "Don't sell magic. Sell leverage. Magic gets you one budget cycle.
+  Leverage gets you a program."
+- **Image idea:** A dial between "over-promise" and "over-fear," needle in the middle.
+
+### Slide 1.5.4 — The convince-the-boss playbook (the write-it-down slide)
+- Five moves, in order:
+  1. **Lead with the risk slide, not the demo** — name the data/compliance/accuracy
+     risks *and* your mitigations first; you disarm the Terrified and out-credential
+     the vendor who skipped it. (This is literally why 2.1 Security is next.) `[→ 2.1]`
+  2. **Pick a boring, bounded first win** — one painful, low-stakes, high-frequency
+     task (documenting legacy procs, `sp_` boilerplate). Boring = low blast radius = easy yes.
+  3. **Quantify in their units** — "this class of ticket is ~3 hrs; with AI-assisted
+     drafting + review it's ~45 min." Hours and tickets, not vibes.
+  4. **Show the guardrails before they ask** — human-in-the-loop, no prod write access,
+     enterprise tier with training opt-out, an AUP. The sentence that unlocks budget. `[→ 2.1]`
+  5. **Ask for a pilot, not a platform** — a 30-day, one-team, one-task pilot with a
+     success metric. Reversible, cheap; converts the Burned with evidence. `[→ 6.4]`
+- **Image idea:** A numbered 5-move card (the photograph slide).
+
+### Slide 1.5.5 — The skeptic is your free risk assessment (+ transition)
+- Reframe: you *want* the hard questions early. The DBA who asks "what happens when it
+  hallucinates an index hint?" is doing your risk assessment for free — bring them in
+  as a reviewer, not a roadblock.
+- > Closing line: "You don't convince the boss by being the most excited person in the
+  room — by being the most *credible* one, who already thought about what could go
+  wrong. Which is exactly what we do next: we talk security."
+- Transition into Block 2 / 2.1: "The fastest way to lose this argument is to fumble
+  'is it safe?' — so let's make sure you never do." `[→ 2.1]`
+- **Image idea:** A skeptic's question turning into a checklist item labeled "free QA."
 
 ---
 
