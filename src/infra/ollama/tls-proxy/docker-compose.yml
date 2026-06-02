@@ -1,0 +1,49 @@
+# Full demo stack: the SQL Server 2025 container (already trusting the proxy's
+# cert) PLUS the Caddy TLS proxy in front of the host's Ollama. One command runs
+# everything; there is no manual cert step on stage.
+#
+# One-time prep (before the talk):
+#   1. Build the base data image (~once, slow):
+#        docker build -f ../../docker/Dockerfile -t wakecounty-sql2025 ../../../..
+#   2. Install Ollama + the harrier model:  ../install-harrier-<platform>
+#   3. Generate the cert:  bash generate-cert.sh
+#
+# Stage day:
+#   1. Make sure Ollama is running (the install script already set it to listen
+#      on 0.0.0.0:11434).
+#   2. docker compose up -d        # builds the cert-trusting SQL image, starts both
+#      NOTE: if you rebuilt the base 'wakecounty-sql2025' image (new data/schema),
+#      use 'docker compose up -d --build' -- plain 'up' reuses the cached derived
+#      image and you'll get stale data (e.g. a missing table).
+#
+# Connect:  sa / WakeCounty!2025  on localhost,1433   (database WakeCountyFood)
+services:
+  ollama-tls:
+    image: caddy:2
+    container_name: ollama-tls-proxy
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+    # Lets the proxy reach the host's Ollama. Required on Linux; harmless on
+    # Docker Desktop (Windows/macOS), where it already resolves.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  sql:
+    build:
+      context: .
+      dockerfile: Dockerfile.sql-trust
+    image: wakecounty-sql2025-trust:latest
+    container_name: wakecounty-sql2025
+    restart: unless-stopped
+    ports:
+      - "1433:1433"
+    # So the container can reach the proxy at host.docker.internal:8443 (the name
+    # the cert is issued for). Required on Linux; harmless on Docker Desktop.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - ollama-tls

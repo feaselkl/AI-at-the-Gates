@@ -1,0 +1,8 @@
+# Keep the Docker build context small. The image build needs data/*.csv and
+# src/infra/** only. Everything excluded here is irrelevant to the build.
+.git
+**/*.7z
+outlines/
+docs/
+*.md
+.claude/

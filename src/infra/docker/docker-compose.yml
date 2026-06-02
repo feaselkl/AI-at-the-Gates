@@ -1,0 +1,26 @@
+# Convenience wrapper around the Dockerfile.
+# The build context is the repository root (../../..) so that data/ is reachable.
+#
+#   cd src/infra/docker
+#   docker compose up -d --build
+#
+# Connect with:  sa / WakeCounty!2025  on localhost,1433
+services:
+  wakecounty-sql2025:
+    build:
+      context: ../../..
+      dockerfile: src/infra/docker/Dockerfile
+    image: wakecounty-sql2025:latest
+    container_name: wakecounty-sql2025
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    # The data is baked into the image, so no volume is required. If you want
+    # changes (e.g. embeddings you add live) to survive container removal,
+    # uncomment the volume below -- note it shadows the baked data on first run.
+    # volumes:
+    #   - wakecounty-data:/var/opt/mssql
+
+# volumes:
+#   wakecounty-data:

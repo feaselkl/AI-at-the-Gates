@@ -1,0 +1,27 @@
+# Derived image: the Wake County SQL Server 2025 demo image + trust for the
+# Ollama TLS proxy's self-signed certificate. Baking the trust in means there is
+# NO manual cert step on stage -- just `docker compose up -d`.
+#
+# Prerequisites (build context = this folder, src/infra/ollama/tls-proxy):
+#   1. Base image built:  docker build -f ../../docker/Dockerfile -t wakecounty-sql2025 <repo-root>
+#   2. Cert generated:    bash generate-cert.sh   (creates certs/ca.crt + the leaf)
+#
+# docker-compose.yml in this folder builds this automatically.
+
+ARG BASE_IMAGE=wakecounty-sql2025:latest
+FROM ${BASE_IMAGE}
+
+# Trust the proxy's ROOT CA so SQL Server's outbound TLS (used by
+# AI_GENERATE_EMBEDDINGS) accepts the server leaf cert that Caddy serves.
+#
+# CRITICAL: SQL Server 2025 on Linux reads trusted CA certs for OUTBOUND HTTPS
+# from its OWN directory, /var/opt/mssql/security/ca-certificates -- NOT from the
+# OS store (/etc/ssl/certs). update-ca-certificates does nothing for this path.
+# We trust the CA (not the leaf); the leaf carries the serverAuth EKU SQL requires
+# and chains up to this CA.
+USER root
+RUN mkdir -p /var/opt/mssql/security/ca-certificates
+COPY certs/ca.crt /var/opt/mssql/security/ca-certificates/ollama-demo-ca.crt
+RUN chown -R mssql:0 /var/opt/mssql/security/ca-certificates \
+    && chmod 644 /var/opt/mssql/security/ca-certificates/ollama-demo-ca.crt
+USER mssql
