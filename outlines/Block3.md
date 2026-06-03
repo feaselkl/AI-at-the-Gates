@@ -40,58 +40,85 @@ Tagging is light (technique is platform-neutral); `[→ Block N]` marks cross-re
 
 ## Section 3.1 — Prompt Engineering Fundamentals (6 slides, ~13 min)
 
-### Slide 3.1.1 — Why generic prompting advice falls short for DB work
-- "Be specific / act as an expert" doesn't address what database work demands:
-  the **exact schema**, the **dialect** (T-SQL vs ANSI), **correctness you can
-  verify**, **performance**, and **your shop's conventions**.
-- DB work is unforgiving: a hallucinated column or a wrong `JOIN` is a *bug*, not a
-  style nit. The bar is higher than "write me a poem."
+### Slide 3.1.1 — A prompt is a spec (why generic advice fails for DB work)
+- Hook: "Most 'prompt engineering' advice is garbage for us — '10 ChatGPT prompts
+  that'll blow your mind,' none about writing a `MERGE` that won't deadlock."
+- Reframe (the keeper): **a prompt is a spec.** You already write specs for junior
+  devs every day. An LLM is the most literal, fastest, most *overconfident* junior
+  you've ever onboarded — prompt it like one.
+- "Be specific / act as an expert" ignores what DB work demands: the **exact
+  schema**, the **dialect** (T-SQL vs ANSI), **verifiable correctness**,
+  **performance**, and **your shop's conventions**. A hallucinated column or wrong
+  `JOIN` is a *bug*, not a style nit — the bar is higher than "write me a poem."
 - **Image idea:** Generic "10 ChatGPT tips" sticky notes on one side; a precise
   schema diagram + query on the other.
 
-### Slide 3.1.2 — The anatomy of an effective prompt (the recipe)
-- Five parts, in order:
-  1. **Role** — who the model should act as ("a senior SQL Server DBA").
-  2. **Context** — schema/DDL, sample rows, environment, constraints it must know.
-  3. **Task** — the precise thing you want done.
-  4. **Constraints** — dialect, performance goals, what to avoid (no cursors, etc.).
-  5. **Output format** — just T-SQL? with inline comments? an explanation too?
-- This is the **reusable recipe** for the rest of the block (and a handout).
+### Slide 3.1.2 — The anatomy of an effective prompt: R-C-T-C-O (the recipe card)
+- Five parts, in order — the slide they photograph:
+  1. **Role** — who the model should be ("a senior SQL Server DBA who writes
+     set-based T-SQL and cares about query plans"). Sets vocabulary and standards.
+  2. **Context** — schema/DDL, SQL Server version, data volumes, conventions, what
+     you've tried. *Where ~90% of quality comes from.*
+  3. **Task** — one clear verb, one clear deliverable ("write," "refactor," "explain,"
+     "find the bug in").
+  4. **Constraints** — the guardrails that encode your standards ("set-based, no
+     cursors," "must run on SQL Server 2019," "parameterized").
+  5. **Output format** — "just the T-SQL," "a markdown table of options," "inline
+     comments per CTE." Saves a round trip.
+- > Key line: "Role and Task are easy and everyone does them. **Context,
+  Constraints, and Output are where amateurs stop and professionals start.** The
+  quality gap is entirely in the last three."
 - **Image idea:** One prompt with the five sections color-coded and labeled — the
-  "recipe card." Likely a screenshot-and-keep slide.
+  "R-C-T-C-O recipe card." Screenshot-and-keep slide (also the handout).
 
-### Slide 3.1.3 — Context is king (and why)
+### Slide 3.1.3 — Context is king (and it's MCP in disguise)
 - The model **cannot see your database.** Most bad SQL comes from missing context,
   not a weak model.
-- Feed it: relevant **DDL**, key **relationships**, a few **sample rows**, and
-  rough **cardinality** ("~310k violation rows").
-- Direct callback: without the schema, it confidently invents plausible-but-wrong
-  column names — the hallucination you saw in Block 1. `[→ Block 1]`
-- **Image idea:** Left: model guessing column names with "?" tags. Right: same
-  model handed a `CREATE TABLE` and getting them right.
+- Feed it: relevant **DDL**, key **relationships**, a few **sample rows**, and rough
+  **cardinality** ("~310k violation rows").
+- Without the schema it confidently invents plausible-but-wrong column names — the
+  hallucination from Block 1. `[→ Block 1]`
+- **The tee-up (pays off in 5.2):** doing this by hand is a chore, and chores don't
+  get done. **MCP is just automating the Context step** — the AI fetches the schema
+  itself. Plant it here; 5.2 cashes it. `[→ 5.2]`
+- **Image idea:** Left: model guessing column names with "?" tags. Right: same model
+  handed a `CREATE TABLE` and getting them right — with a small "5.2: automate this" tag.
 
-### Slide 3.1.4 — Zero-shot vs few-shot
-- **Zero-shot:** just ask. Fine for common, well-trodden patterns.
-- **Few-shot:** include 1–3 examples of input→output in *your* style (naming,
-  formatting, header comments). Use it to enforce house conventions or an unusual
-  pattern the model wouldn't guess.
-- Rule of thumb: reach for few-shot when you keep correcting the same thing.
-- **Image idea:** An empty prompt (zero-shot) vs a prompt with two small
-  "example" cards attached (few-shot).
+### Slide 3.1.4 — Zero-shot vs few-shot (describe the what, show the how)
+- **Zero-shot:** just ask. Fine for common, well-trodden patterns — start here, don't
+  over-engineer.
+- **Few-shot:** 1–3 examples of input→output in *your* style (naming, formatting,
+  header comments). Use it to enforce house conventions or a pattern the model
+  wouldn't guess.
+- Rule of thumb: "Describe the *what*; show the *how*. If you're writing a paragraph
+  describing your code style, paste an example instead." Reach for few-shot when you
+  keep correcting the same thing.
+- **Image idea:** An empty prompt (zero-shot) vs a prompt with two small "example"
+  cards attached (few-shot).
 
 ### Slide 3.1.5 — Chain-of-thought for complex query logic
-- For multi-step logic (multi-join, window functions, gaps-and-islands, dedup),
-  ask it to **outline the approach first, then write the SQL**.
-- Why it helps: forces the model to reason before committing to syntax, catching
-  logic errors early.
-- Tradeoff: more tokens/time — overkill for a simple `SELECT`.
+- For multi-step logic (multi-join with tricky grain, window functions,
+  gaps-and-islands, dedup, "why is this returning duplicates"), ask it to **outline
+  the approach first, then write the SQL**.
+- Why it works: it forces the model to lay out its assumptions where you can **catch
+  the wrong one** before it bakes into code. Half the value is seeing it
+  misunderstood the grain.
+- Practical pattern: "Before writing SQL, restate the requirement, list the tables
+  and their grain, and identify the join keys. Then write the query." Tradeoff: more
+  tokens/time — overkill for a simple `SELECT`. (Direct line to trust-but-verify.) `[→ 2.1]`
 - **Image idea:** A short numbered "plan" leading into a query block.
 
 ### Slide 3.1.6 — Prompting is a loop, not a one-shot
 - Draft → **run & verify** → refine. The model gives you a starting point; **you're
-  still the DBA** who owns correctness and performance.
+  still the DBA** who owns correctness and performance — the same way you'd mentor a
+  junior. Throughline into 5.1. `[→ 5.1]`
 - Ties the room back to governance: verify before you trust. `[→ Block 2]`
 - **Image idea:** A cycle diagram: prompt → output → verify → refine → (repeat).
+
+> **Optional light demo (3.2 owns the production-T-SQL makeover — don't duplicate):**
+> a fast before/after of one prompt — a lazy one-liner vs the same ask with R-C-T-C-O
+> applied — showing the quality jump. Conceptual, <2 min. Keep the meaty live
+> prompting for 3.2.
 
 ---
 
