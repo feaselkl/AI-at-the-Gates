@@ -1,4 +1,4 @@
-# Block 1 demos — gentle, no SQL Server
+# Block 1 demos
 
 These are the hands-on bits for [`outlines/Block1.md`](../../../outlines/Block1.md)
 (sections 1.1–1.4). Everything here is **browser-based or a small local model** —
