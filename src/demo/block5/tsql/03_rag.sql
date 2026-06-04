@@ -14,6 +14,10 @@ GO
 DECLARE @question NVARCHAR(1000) =
     N'The nightly data load failed overnight and the transaction log filled up. What happened, and how do we stop it recurring?';
 
+-- -- Secondary question for testing.
+-- DECLARE @question NVARCHAR(1000) =
+--     N'Rick in Accounts Payable says that the Music City Miracle was an illegal forward pass and I''m still bitter about it. Give me proof that I am correct in my belief.';
+
 /* 1. Embed the question with the same model used for the chunks. */
 DECLARE @qv VECTOR(1536) = AI_GENERATE_EMBEDDINGS(@question USE MODEL FoundryEmbeddings);
 
@@ -45,16 +49,15 @@ DECLARE @payload NVARCHAR(MAX) =
         'messages': JSON_ARRAY(
             JSON_OBJECT('role': 'system', 'content': @system),
             JSON_OBJECT('role': 'user',   'content': @user)
-        ),
-        'temperature': 0.2
+        )
     );
 
 /* 4. Call the Foundry chat-completions endpoint (HTTPS, publicly-trusted cert). */
 DECLARE @ret INT, @response NVARCHAR(MAX);
 EXEC @ret = sp_invoke_external_rest_endpoint
-    @url        = N'https://<resource>.openai.azure.com/openai/deployments/<chat-deployment>/chat/completions?api-version=2024-10-21',
+    @url        = N'https://csvcaifoundry.services.ai.azure.com/openai/deployments/gpt-5-mini/chat/completions?api-version=2024-10-21',
     @method     = 'POST',
-    @credential = [https://<resource>.openai.azure.com/],
+    @credential = [https://csvcaifoundry.services.ai.azure.com],
     @payload    = @payload,
     @response   = @response OUTPUT;
 

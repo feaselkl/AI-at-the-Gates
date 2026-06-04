@@ -1,14 +1,13 @@
-/* =============================================================================
-   01_index.sql  -- Block 5.3 RAG demo (T-SQL): chunk + embed the runbooks.
+/*
+   01_index.sql
 
    Run AFTER 00_setup.sql and AFTER loading the docs (run load_docs.sql, which
-   inserts the runbook text into dbo.KbDoc -- generated from docs/*.md by
-   ../make_load_sql.py).
+   inserts the runbook text into dbo.KbDoc.
 
    This is the "index" half of RAG, entirely in T-SQL:
      AI_GENERATE_CHUNKS  -> split each doc into overlapping chunks
      AI_GENERATE_EMBEDDINGS (Foundry) -> a vector per chunk
-   ============================================================================= */
+*/
 
 USE DbaDocs;
 GO

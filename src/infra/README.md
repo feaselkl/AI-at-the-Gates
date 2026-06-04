@@ -3,13 +3,12 @@
 This is the single entry point for standing up the whole "AI at the Gates" demo
 environment. The detailed per-component docs are linked throughout.
 
-## Is it one docker-compose?
+## Architecture
 
-**Partly.** One compose ([`ollama/tls-proxy/docker-compose.yml`](ollama/tls-proxy/docker-compose.yml))
-runs the **two containers** — SQL Server (trusting the proxy cert) and the Caddy
+One compose ([`ollama/tls-proxy/docker-compose.yml`](ollama/tls-proxy/docker-compose.yml))
+runs the **two containers**: SQL Server (trusting the proxy cert) and the Caddy
 HTTPS proxy. **Ollama runs on the host**, not in a container (installed by a
-script). And a few **one-time prep** steps must happen first (extract data, build
-the base image, make the cert). So:
+script). The diagram is as follows:
 
 ```
             host machine
@@ -27,12 +26,11 @@ the base image, make the cert). So:
  │   └──────────────────┘        │ DB: WakeCountyFood        │   │
  │                               └───────────────────────────┘   │
  └──────────────────────────────────────────────────────────────┘
-   Browser tools (TF Playground / tokenizer / Embedding Projector) — no host deps
+   Browser tools (TF Playground / tokenizer / Embedding Projector) have no host deps
 ```
 
 Why the proxy at all? SQL Server 2025's `CREATE EXTERNAL MODEL` only accepts
-**HTTPS** endpoints, but Ollama serves plain HTTP — so Caddy puts TLS in front of
-it. See [`ollama/tls-proxy/`](ollama/tls-proxy/).
+**HTTPS** endpoints, but Ollama serves plain HTTP. To deal with this, Caddy puts TLS in front of it. See [`ollama/tls-proxy/`](ollama/tls-proxy/).
 
 ## Prerequisites (install once)
 
@@ -40,8 +38,8 @@ it. See [`ollama/tls-proxy/`](ollama/tls-proxy/).
 |------|-----|-------|
 | Docker | everything | Linux x86-64 or Docker Desktop (the SQL image needs x86-64) |
 | 7-Zip CLI (`7z`) | extracting `data/*.7z` | `apt install p7zip-full` / `brew install p7zip` / `winget install 7zip.7zip` |
-| Python 3 | Block 1 scripts | standard library only — no `pip install` |
-| A SQL client | Block 4 | SSMS 21, Azure Data Studio, VS Code **mssql**, or `sqlcmd` |
+| Python 3 | Block 1 scripts | no additional libraries required |
+| A SQL client | Block 4 | SSMS 22, VS Code with mssql extension, or `sqlcmd` |
 | OpenSSL | the TLS cert | ships with macOS/Linux/Git-for-Windows |
 | VS Code + Claude Code + internet | Block 3 **online** variant only | optional |
 
@@ -124,10 +122,6 @@ docker exec wakecounty-sql2025 /opt/mssql-tools18/bin/sqlcmd \
   -Q "SELECT COUNT(*) AS restaurants FROM dbo.Restaurant;"
 ```
 
-End-to-end (the real test): in a SQL client run `src/demo/block4/10_create_external_model.sql`,
-then its smoke-test `SELECT AI_GENERATE_EMBEDDINGS(...)` — a 1024-element array
-means SQL → proxy → Ollama is fully wired.
-
 ## Teardown
 
 ```bash
@@ -138,7 +132,7 @@ ollama rm harrier llama3.2:1b
 
 ## Component docs
 
-- [`docker/`](docker/) — the SQL Server 2025 image (data baked in at build).
-- [`ollama/`](ollama/) — install Ollama + the Harrier embedding model.
-- [`ollama/tls-proxy/`](ollama/tls-proxy/) — HTTPS proxy + the full-stack compose.
-- [`../demo/`](../demo/) — per-block demo assets (`block1`, `block3`, `block4`).
+- [`docker/`](docker/) - the SQL Server 2025 image (data baked in at build).
+- [`ollama/`](ollama/) - install Ollama + the Harrier embedding model.
+- [`ollama/tls-proxy/`](ollama/tls-proxy/) - HTTPS proxy + the full-stack compose.
+- [`../demo/`](../demo/) - per-block demo assets (`block1`, `block3`, `block4`).

@@ -27,11 +27,11 @@ GO
 
 -- Master key + ONE credential for the Foundry resource (covers embeddings + chat).
 IF NOT EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##')
-    CREATE MASTER KEY ENCRYPTION BY PASSWORD = N'<master-key-pwd>';
+    CREATE MASTER KEY ENCRYPTION BY PASSWORD = N'ThisIs_MyMasterKeyPassword123!';
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.database_scoped_credentials
-               WHERE name = N'https://<resource>.openai.azure.com/')
-    CREATE DATABASE SCOPED CREDENTIAL [https://<resource>.openai.azure.com/]
+               WHERE name = N'https://csvcaifoundry.services.ai.azure.com')
+    CREATE DATABASE SCOPED CREDENTIAL [https://csvcaifoundry.services.ai.azure.com]
         WITH IDENTITY = 'HTTPEndpointHeaders', SECRET = '{"api-key":"<api-key>"}';
 GO
 
@@ -41,13 +41,14 @@ IF EXISTS (SELECT 1 FROM sys.external_models WHERE name = N'FoundryEmbeddings')
 GO
 CREATE EXTERNAL MODEL FoundryEmbeddings
 WITH (
-    LOCATION   = 'https://<resource>.openai.azure.com/openai/deployments/<embed-deployment>/embeddings?api-version=2024-02-01',
+    LOCATION   = 'https://csvcaifoundry.services.ai.azure.com/openai/deployments/text-embedding-3-small/embeddings?api-version=2024-02-01',
     API_FORMAT = 'Azure OpenAI',
     MODEL_TYPE = EMBEDDINGS,
     MODEL      = 'text-embedding-3-small',
-    CREDENTIAL = [https://<resource>.openai.azure.com/]
+    CREDENTIAL = [https://csvcaifoundry.services.ai.azure.com]
 );
 GO
+
 
 -- Doc + chunk tables. Embedding is a GA VECTOR column (no index here -- the corpus
 -- is tiny, so exact kNN with VECTOR_DISTANCE is the right tool; see Block 4).
