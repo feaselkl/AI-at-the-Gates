@@ -82,3 +82,15 @@ SELECT
     FORMAT(SUM(DATALENGTH(DescriptionEmbedding)), 'N0') AS inspection_desc_embedding_bytes
 FROM dbo.FoodInspection WITH(NOLOCK);
 GO
+
+
+-- Total space used by the table (data + indexes, including vector indexes once we build them).
+EXEC dbo.sp_spaceused 'dbo.FoodInspectionViolation';
+
+-- Just the embedding vectors (the VECTOR columns are VARBINARY under the hood, so
+-- DATALENGTH gives us the size in bytes).
+SELECT
+    FORMAT(SUM(DATALENGTH(ShortDescEmbedding)), 'N0') AS violation_shortdesc_embedding_bytes,
+    FORMAT(SUM(DATALENGTH(CommentsEmbedding)), 'N0') AS violation_comments_embedding_bytes
+FROM dbo.FoodInspectionViolation WITH(NOLOCK);
+GO
