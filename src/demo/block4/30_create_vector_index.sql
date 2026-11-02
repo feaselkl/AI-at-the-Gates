@@ -5,8 +5,12 @@
    index type in the SQL Server family. Requires PREVIEW_FEATURES = ON (already
    baked in) and at least ~100 embedded rows in the column.
 
-   Caveat (SQL Server 2025): a table can become read-only once it has a vector
-   index. To add more embeddings later, DROP the index, embed, then recreate it.
+   Caveats (SQL Server 2025, earlier vector index version):
+   - The table is read-only once it has a vector index. To add more embeddings
+     later, DROP the index, embed, then recreate it.
+   - The table needs a clustered primary key on an int column (OBJECTID here).
+   - Known issue: a MAXDOP option on CREATE VECTOR INDEX is ignored. Set
+     server- or database-level MAXDOP instead.
    ============================================================================= */
 
 USE WakeCountyFood;

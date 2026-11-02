@@ -9,7 +9,8 @@
    ../../infra/ollama/tls-proxy/. Harrier-0.6b returns 1024-dim vectors, matching
    the VECTOR(1024) columns in 020_tables.sql.
 
-   CREATE EXTERNAL MODEL is a SQL Server 2025 preview feature. Confirm syntax at:
+   CREATE EXTERNAL MODEL and AI_GENERATE_EMBEDDINGS are GA in SQL Server 2025
+   (no PREVIEW_FEATURES needed). Confirm syntax at:
    https://learn.microsoft.com/sql/t-sql/statements/create-external-model-transact-sql?view=sql-server-ver17
 
    -------------------------------------------------------------------------

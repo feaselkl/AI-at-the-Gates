@@ -1,5 +1,5 @@
 /* =============================================================================
-   02_rag.sql  -- Block 5.3 RAG demo (T-SQL): the full RAG query, entirely in T-SQL.
+   03_rag.sql  -- Block 5.3 RAG demo (T-SQL): the full RAG query, entirely in T-SQL.
 
    Embed the question -> retrieve the closest chunks (exact kNN) -> build a chat
    payload with that context -> call the Foundry chat model -> return the grounded,
@@ -55,9 +55,9 @@ DECLARE @payload NVARCHAR(MAX) =
 /* 4. Call the Foundry chat-completions endpoint (HTTPS, publicly-trusted cert). */
 DECLARE @ret INT, @response NVARCHAR(MAX);
 EXEC @ret = sp_invoke_external_rest_endpoint
-    @url        = N'https://csvcaifoundry.services.ai.azure.com/openai/deployments/gpt-5-mini/chat/completions?api-version=2024-10-21',
+    @url        = N'https://<resource>.services.ai.azure.com/openai/deployments/<chat-deployment>/chat/completions?api-version=2024-10-21',
     @method     = 'POST',
-    @credential = [https://csvcaifoundry.services.ai.azure.com],
+    @credential = [https://<resource>.services.ai.azure.com],
     @payload    = @payload,
     @response   = @response OUTPUT;
 

@@ -1,20 +1,24 @@
 # Block 1 demos
 
-These are the hands-on bits for [`outlines/Block1.md`](../../../outlines/Block1.md)
-(sections 1.1–1.4). Everything here is **browser-based or a small local model** —
-no SQL Server, no T-SQL. The database arrives in Block 4.
+These are the hands-on bits for sections 1 and 2 of the deck. Everything here is
+**browser-based or a small local model** — no SQL Server, no T-SQL. The database
+arrives in section 3.
 
 ## At a glance
 
+Slide numbers are the Portland 2026 order (`slides/portland-rebuild-design.md`).
+
 | Slide | Demo | What you need |
 |-------|------|---------------|
-| 1.1.3 | "Predict the next word" — audience guesses | nothing (a slide) |
-| 1.2.2 | A neural network learning, visually | browser: [TensorFlow Playground](https://playground.tensorflow.org) |
-| 1.2.3 | Text → tokens | browser: a tokenizer, e.g. [tiktokenizer](https://tiktokenizer.vercel.app) |
-| 1.2.7 | Temperature changes output | local model — `temperature_demo.py` |
-| 1.3.4 | Classic embeddings (king−man+woman) | browser: [Embedding Projector](https://projector.tensorflow.org) (built-in data) |
-| 1.3.5 | Real clusters from our data | Embedding Projector + `embed_violations.py` output |
-| 1.4.4 | "Nearest neighbor = close enough" | reuse the Projector from 1.3.5 |
+| 1.3 | "Guess the next word" — audience guesses | nothing (a slide) |
+| 1.4 | Text → tokens | browser: a tokenizer, e.g. [tiktokenizer](https://tiktokenizer.vercel.app) |
+| 1.9 | Temperature changes output | local model — `temperature_demo.py` |
+| 2.4 | Classic embeddings (king−man+woman) | browser: [Embedding Projector](https://projector.tensorflow.org) (built-in data) |
+| 2.5 | Real clusters from our data | Embedding Projector + `embed_violations.py` output |
+| 2.10 | "Nearest neighbor = close enough" | reuse the Projector from 2.5 |
+
+The TensorFlow Playground demo (a neural network learning) was cut from the Portland deck;
+its notes below stay for anyone who wants it.
 
 ## Browser demos (nothing to install)
 

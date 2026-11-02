@@ -8,7 +8,7 @@
    Fill in the placeholders before running:
      <resource>          your Azure OpenAI / Foundry resource name
      <embed-deployment>  your text-embedding-3-small deployment name
-     <chat-deployment>   your chat model deployment (used in 02_rag.sql)
+     <chat-deployment>   your chat model deployment (used in 03_rag.sql)
      <api-key>           the resource API key
      <master-key-pwd>    any strong password for the database master key
    ============================================================================= */
@@ -19,7 +19,7 @@ ALTER DATABASE DbaDocs SET COMPATIBILITY_LEVEL = 170;   -- required for AI_GENER
 GO
 USE DbaDocs;
 GO
-ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;   -- AI_GENERATE_* are preview
+ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;   -- not needed: AI_GENERATE_* and external models are GA; harmless
 GO
 EXEC sp_configure 'external rest endpoint enabled', 1;
 RECONFIGURE WITH OVERRIDE;
@@ -27,11 +27,11 @@ GO
 
 -- Master key + ONE credential for the Foundry resource (covers embeddings + chat).
 IF NOT EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##')
-    CREATE MASTER KEY ENCRYPTION BY PASSWORD = N'ThisIs_MyMasterKeyPassword123!';
+    CREATE MASTER KEY ENCRYPTION BY PASSWORD = N'<master-key-pwd>';
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.database_scoped_credentials
-               WHERE name = N'https://csvcaifoundry.services.ai.azure.com')
-    CREATE DATABASE SCOPED CREDENTIAL [https://csvcaifoundry.services.ai.azure.com]
+               WHERE name = N'https://<resource>.services.ai.azure.com')
+    CREATE DATABASE SCOPED CREDENTIAL [https://<resource>.services.ai.azure.com]
         WITH IDENTITY = 'HTTPEndpointHeaders', SECRET = '{"api-key":"<api-key>"}';
 GO
 
@@ -41,11 +41,11 @@ IF EXISTS (SELECT 1 FROM sys.external_models WHERE name = N'FoundryEmbeddings')
 GO
 CREATE EXTERNAL MODEL FoundryEmbeddings
 WITH (
-    LOCATION   = 'https://csvcaifoundry.services.ai.azure.com/openai/deployments/text-embedding-3-small/embeddings?api-version=2024-02-01',
+    LOCATION   = 'https://<resource>.services.ai.azure.com/openai/deployments/<embed-deployment>/embeddings?api-version=2024-02-01',
     API_FORMAT = 'Azure OpenAI',
     MODEL_TYPE = EMBEDDINGS,
     MODEL      = 'text-embedding-3-small',
-    CREDENTIAL = [https://csvcaifoundry.services.ai.azure.com]
+    CREDENTIAL = [https://<resource>.services.ai.azure.com]
 );
 GO
 

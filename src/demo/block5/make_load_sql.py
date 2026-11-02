@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-make_load_sql.py  -- regenerate tsql/load_docs.sql from docs/*.md.
+make_load_sql.py  -- regenerate tsql/01_load_docs.sql from docs/*.md.
 
 The entirely-in-T-SQL example needs the runbook text inside SQL Server. Rather
 than mount files into the container (and fight UTF-8/BULK quirks), we emit plain
@@ -12,7 +12,7 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DOCS = sorted(glob.glob(os.path.join(HERE, "docs", "*.md")))
-OUT = os.path.join(HERE, "tsql", "load_docs.sql")
+OUT = os.path.join(HERE, "tsql", "01_load_docs.sql")
 
 
 def esc(s):

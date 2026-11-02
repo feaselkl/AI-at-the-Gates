@@ -40,7 +40,9 @@ GO
 
 /* ---------------------------------------------------------------------------
    B. Approximate (ANN) with the DiskANN index, over violation comments.
-      SQL Server 2025 form: pass TOP_N inside VECTOR_SEARCH.
+      SQL Server 2025 form: pass TOP_N inside VECTOR_SEARCH. TOP_N is
+      deprecated, but it's the only form the earlier index version in SQL
+      Server 2025 supports. See B' for the newer syntax.
    --------------------------------------------------------------------------- */
 DECLARE @qv VECTOR(1024) =
     AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL HarrierEmbeddings);
@@ -66,7 +68,7 @@ GO
    C. Filtered vector search -- "pest-like violations at restaurants in Raleigh."
       The metadata filter (City) shrinks the candidate set, so exact kNN over the
       filtered rows is the right tool (no ANN index needed once the set is small).
-      This is the filtered-search pattern from 4.3, made concrete by the link-back.
+      This is the filter-first pattern from the post-filter slide, made concrete by the link-back.
    --------------------------------------------------------------------------- */
 DECLARE @qf VECTOR(1024) =
     AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL HarrierEmbeddings);
@@ -85,8 +87,11 @@ ORDER BY distance;
 GO
 
 /* ---------------------------------------------------------------------------
-   B'. On Azure SQL Database / SQL database in Fabric (latest index version), the
-       ANN query uses SELECT TOP (N) WITH APPROXIMATE instead of TOP_N:
+   B'. On Azure SQL Database, SQL database in Fabric, and Azure SQL Managed
+       Instance (Always-up-to-date policy), the latest index version uses
+       SELECT TOP (N) WITH APPROXIMATE instead of TOP_N. Using TOP_N against a
+       latest-version index fails with Msg 42274. The FORCE_ANN_ONLY table hint
+       also requires this form:
 
    DECLARE @qv VECTOR(1024) =
        AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL HarrierEmbeddings);
