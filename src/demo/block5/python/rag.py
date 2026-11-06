@@ -32,7 +32,7 @@ DOCS_DIR = os.path.join(HERE, "..", "docs")
 ENDPOINT      = os.environ.get("FOUNDRY_ENDPOINT", "https://<resource>.openai.azure.com").rstrip("/")
 API_KEY       = os.environ.get("FOUNDRY_API_KEY", "")
 EMBED_DEPLOY  = os.environ.get("FOUNDRY_EMBED_DEPLOYMENT", "text-embedding-3-small")
-CHAT_DEPLOY   = os.environ.get("FOUNDRY_CHAT_DEPLOYMENT", "gpt-4o-mini")
+CHAT_DEPLOY   = os.environ.get("FOUNDRY_CHAT_DEPLOYMENT", "gpt-6-luna")
 EMBED_APIVER  = os.environ.get("FOUNDRY_EMBED_API_VERSION", "2024-02-01")
 CHAT_APIVER   = os.environ.get("FOUNDRY_CHAT_API_VERSION", "2024-10-21")
 EMBED_DIM     = int(os.environ.get("EMBED_DIM", "1536"))
@@ -60,9 +60,14 @@ def embed(texts):
     return [row["embedding"] for row in data["data"]]
 
 
-def chat(messages, temperature=0.2):
+def chat(messages, temperature=None):
+    # Reasoning models (GPT-5 series and later) reject any temperature other than
+    # the default, so only send it when a caller asks for one explicitly.
     url = f"{ENDPOINT}/openai/deployments/{CHAT_DEPLOY}/chat/completions?api-version={CHAT_APIVER}"
-    data = _post(url, {"messages": messages, "temperature": temperature})
+    body = {"messages": messages}
+    if temperature is not None:
+        body["temperature"] = temperature
+    data = _post(url, body)
     return data["choices"][0]["message"]["content"]
 
 
@@ -106,7 +111,7 @@ def cmd_index(_args):
             for i, (c, v) in enumerate(zip(chunks, vectors)):
                 cx.execute(
                     "INSERT INTO dbo.KbChunkPy (DocName, ChunkOrder, ChunkText, Embedding) "
-                    "VALUES (?, ?, ?, CAST(? AS VECTOR(%d)))" % EMBED_DIM,
+                    "VALUES (?, ?, ?, CAST(CAST(? AS NVARCHAR(MAX)) AS VECTOR(%d)))" % EMBED_DIM,
                     name, i, c, json.dumps(v),
                 )
             total += len(chunks)
@@ -119,7 +124,9 @@ def cmd_ask(args):
     with connect("DbaDocs") as cx:
         rows = cx.execute(
             "SELECT TOP (?) DocName, ChunkText, "
-            "       VECTOR_DISTANCE('cosine', CAST(? AS VECTOR(%d)), Embedding) AS distance "
+            # pyodbc binds JSON longer than 4000 chars as ntext, which can't be cast
+            # to VECTOR directly -- go through NVARCHAR(MAX) first.
+            "       VECTOR_DISTANCE('cosine', CAST(CAST(? AS NVARCHAR(MAX)) AS VECTOR(%d)), Embedding) AS distance "
             "FROM dbo.KbChunkPy WHERE Embedding IS NOT NULL "
             "ORDER BY distance" % EMBED_DIM,
             args.k, json.dumps(qv),

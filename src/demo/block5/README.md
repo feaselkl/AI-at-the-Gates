@@ -25,7 +25,7 @@ Two parallel variants of the same demo (pick one, or show both):
 - The SQL Server 2025 container running (see [`../../infra/`](../../infra/)).
 - A **Microsoft Foundry** resource with:
   - an **embedding** deployment (e.g. `text-embedding-3-small`, 1536 dims), and
-  - a **chat** deployment (e.g. `gpt-4o-mini`), plus the resource **API key**.
+  - a **chat** deployment (e.g. `gpt-6-luna`), plus the resource **API key**.
 - For the Python variant: `pip install pyodbc` and the **Microsoft ODBC Driver 18
   for SQL Server**. (`rag.py` otherwise uses only the standard library.)
 - A SQL client (SSMS, Azure Data Studio, VS Code mssql, or `sqlcmd`) for the T-SQL variant.

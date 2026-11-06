@@ -18,8 +18,11 @@ run them from SSMS / Azure Data Studio / `sqlcmd` against the running container.
     but Ollama serves plain HTTP on :11434. Use the TLS reverse proxy in
     [`../../infra/ollama/tls-proxy/`](../../infra/ollama/tls-proxy/) and point
     `LOCATION` at it. See the header of `10_create_external_model.sql`.
-  - Azure OpenAI / OpenAI also work (change `API_FORMAT`/`LOCATION`/`MODEL` and
-    set the column dimension to match). A local ONNX model via SQL Server
+  - **Microsoft Foundry (Azure OpenAI)** alternative: `11_create_external_model_foundry.sql`
+    registers `text-embedding-3-small` as `FoundryEmbeddings`, shortened to 1024
+    dims so the same columns work. No proxy or cert step. It includes a connection
+    check. Don't mix models: re-embed every column with it and swap the model name
+    in 20/40/50. A local ONNX model via SQL Server
     Machine Learning Services is **Windows-host only**, not available in this
     Linux container.
 
@@ -30,7 +33,12 @@ run them from SSMS / Azure Data Studio / `sqlcmd` against the running container.
 ## Order
 
 1. `10_create_external_model.sql` — register the Harrier/Ollama embedding model (one-time).
+   *Or* `11_create_external_model_foundry.sql` for Microsoft Foundry instead.
 2. `20_generate_embeddings.sql` — populate the `VECTOR` columns (a subset, by default).
+   *Or* `21_generate_embeddings_foundry.sql` with Foundry: batched API calls (~16x
+   faster than row-by-row), and it refuses to write into a column holding another
+   model's vectors. `19_clear_embeddings.sql` wipes all embeddings (and drops the
+   vector indexes) before switching models; set `@confirm = 1` to run it.
 3. `30_create_vector_index.sql` — build the DiskANN index(es).
 4. `40_vector_search.sql` — exact kNN and approximate (ANN) vector search.
 5. `50_recall_check.sql` — measure the index: recall@10 against exact search over a
