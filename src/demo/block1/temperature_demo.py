@@ -39,7 +39,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", default="llama3.2:1b", help="Ollama chat model (default: llama3.2:1b)")
     p.add_argument("--prompt", default=DEFAULT_PROMPT, help="prompt to run")
-    p.add_argument("--runs", type=int, default=2, help="runs per temperature (default: 2)")
+    p.add_argument("--runs", type=int, default=4, help="runs per temperature (default: 2)")
     p.add_argument("--temps", default="0,1", help="comma-separated temperatures (default: 0,1)")
     p.add_argument("--ollama", default="http://127.0.0.1:11434", help="Ollama base URL")
     return p.parse_args()

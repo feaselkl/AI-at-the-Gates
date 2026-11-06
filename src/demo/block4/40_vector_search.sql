@@ -8,7 +8,7 @@
      C. Filtered search -- narrow by restaurant metadata (city), then exact kNN.
 
    The query text is embedded on the fly with the same model, so the query vector
-   matches the stored vectors' dimensions (1024, from Harrier).
+   matches the stored vectors' dimensions (1024, from Foundry).
 
    Restaurant link-back note: dbo.Restaurant is a current-restaurants snapshot, so
    it doesn't cover every inspected establishment. A/B use LEFT JOIN (name may be
@@ -23,7 +23,7 @@ GO
       similar to this concern," with the restaurant name attached.
    --------------------------------------------------------------------------- */
 DECLARE @q VECTOR(1024) =
-    AI_GENERATE_EMBEDDINGS(N'food stored at unsafe temperature' USE MODEL HarrierEmbeddings);
+    AI_GENERATE_EMBEDDINGS(N'food stored at unsafe temperature' USE MODEL FoundryEmbeddings);
 
 SELECT TOP (10)
     r.Name AS restaurant,             -- NULL when the snapshot has no match for this HSISID
@@ -45,7 +45,7 @@ GO
       Server 2025 supports. See B' for the newer syntax.
    --------------------------------------------------------------------------- */
 DECLARE @qv VECTOR(1024) =
-    AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL HarrierEmbeddings);
+    AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL FoundryEmbeddings);
 
 SELECT
     r.Name AS restaurant,
@@ -71,7 +71,7 @@ GO
       This is the filter-first pattern from the post-filter slide, made concrete by the link-back.
    --------------------------------------------------------------------------- */
 DECLARE @qf VECTOR(1024) =
-    AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL HarrierEmbeddings);
+    AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL FoundryEmbeddings);
 
 SELECT TOP (10)
     r.Name AS restaurant,
@@ -83,6 +83,7 @@ FROM dbo.FoodInspectionViolation AS v
 INNER JOIN dbo.Restaurant AS r ON r.HSISID = v.HSISID
 WHERE v.CommentsEmbedding IS NOT NULL
   AND r.City = N'RALEIGH'
+  AND r.Name LIKE N'%Bojangle%';
 ORDER BY distance;
 GO
 
@@ -94,7 +95,7 @@ GO
        also requires this form:
 
    DECLARE @qv VECTOR(1024) =
-       AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL HarrierEmbeddings);
+       AI_GENERATE_EMBEDDINGS(N'rodent or pest activity in the kitchen' USE MODEL FoundryEmbeddings);
 
    SELECT TOP (10) WITH APPROXIMATE
        r.Name, r.City, v.ShortDesc, s.distance
