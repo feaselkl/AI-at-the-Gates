@@ -1,8 +1,8 @@
 /*
-   01_index.sql
+   02_index.sql
 
-   Run AFTER 00_setup.sql and AFTER loading the docs (run load_docs.sql, which
-   inserts the runbook text into dbo.KbDoc.
+   Run AFTER 00_setup.sql and AFTER loading the docs (run 01_load_docs.sql, which
+   inserts the runbook text into dbo.KbDoc).
 
    This is the "index" half of RAG, entirely in T-SQL:
      AI_GENERATE_CHUNKS  -> split each doc into overlapping chunks

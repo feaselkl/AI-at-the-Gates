@@ -1,6 +1,6 @@
 # Demo: GenAI triages a real performance problem
 
-The capstone demo for Block 4. We hand a deliberately slow query to
+Slide 5.18 in the Portland order, right before the SSMS Agent mode demo. We hand a deliberately slow query to
 **Claude Code in VS Code**, let it pull the waits and the execution plan, watch it
 diagnose the root cause, apply a fix, and **validate the before/after**. This models
 the disciplined "treat the AI as a thinking partner, not an oracle" behavior we

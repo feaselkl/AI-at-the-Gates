@@ -107,7 +107,8 @@ database **`WakeCountyFood`**.
 |-------|-------------|--------------------------|-------|
 | **1** | Browser tools; `python3 src/demo/block1/temperature_demo.py`; load `src/demo/block1/{vectors,metadata}.tsv` into [projector.tensorflow.org](https://projector.tensorflow.org) | No (uses host Ollama only) | [`../demo/block1/`](../demo/block1/) |
 | **3** | The prompt makeover (online via Claude Code, or offline) | Optional — to run queries live | [`../demo/block3/`](../demo/block3/) |
-| **4** | In a SQL client, run `src/demo/block4/10 → 40` in order (register model → embed → index → search) | Yes | [`../demo/block4/`](../demo/block4/) |
+| **4** | In a SQL client, run `src/demo/block4/10 → 40` in order (register model → embed → index → search); then the perf-triage demo in `src/demo/block4/perf-triage/` | Yes | [`../demo/block4/`](../demo/block4/) |
+| **5.3** | RAG over runbooks: `src/demo/block5/tsql/00 → 03` in a SQL client, or `python/rag.py`. Needs a Microsoft Foundry embedding + chat deployment (not Ollama) | Yes | [`../demo/block5/`](../demo/block5/) |
 
 ## Smoke test (verify the wiring)
 
@@ -135,4 +136,4 @@ ollama rm harrier llama3.2:1b
 - [`docker/`](docker/) - the SQL Server 2025 image (data baked in at build).
 - [`ollama/`](ollama/) - install Ollama + the Harrier embedding model.
 - [`ollama/tls-proxy/`](ollama/tls-proxy/) - HTTPS proxy + the full-stack compose.
-- [`../demo/`](../demo/) - per-block demo assets (`block1`, `block3`, `block4`).
+- [`../demo/`](../demo/) - per-block demo assets (`block1`, `block3`, `block4`, `block5`).

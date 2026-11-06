@@ -1,4 +1,4 @@
-# Block 5.3 demo — RAG over internal DBA runbooks
+# RAG demo (section 4) — RAG over internal DBA runbooks
 
 Retrieval-Augmented Generation over a small corpus of **internal DBA runbooks**
 ([`docs/`](docs/)), with **SQL Server 2025 as the vector store** and **Microsoft
@@ -38,12 +38,13 @@ and key. The same values fill the `<...>` placeholders in the `tsql/` scripts.
 ## Run — entirely in T-SQL
 
 ```text
-1. tsql/00_setup.sql     -- create DbaDocs, register the Foundry embedding model
-2. tsql/load_docs.sql    -- load the runbook text into dbo.KbDoc
-3. tsql/01_index.sql     -- AI_GENERATE_CHUNKS + AI_GENERATE_EMBEDDINGS  -> dbo.KbChunk
-4. tsql/02_rag.sql       -- ask a question; edit @question and re-run
+1. tsql/00_setup.sql       -- create DbaDocs, register the Foundry embedding model
+2. tsql/01_load_docs.sql   -- load the runbook text into dbo.KbDoc
+3. tsql/02_index.sql       -- AI_GENERATE_CHUNKS + AI_GENERATE_EMBEDDINGS  -> dbo.KbChunk
+4. tsql/03_rag.sql         -- ask a question; edit @question and re-run
+5. tsql/04_eval.sql        -- test retrieval on fixed questions with known source docs
 ```
-(`load_docs.sql` is generated from `docs/*.md` by `make_load_sql.py` — re-run that
+(`01_load_docs.sql` is generated from `docs/*.md` by `make_load_sql.py` — re-run that
 if you edit the docs.)
 
 ## Run — Python app
@@ -73,5 +74,5 @@ python3 python/rag.py ask "Users say the app is frozen and saves hang. What do I
 - Match `VECTOR(n)` / `EMBED_DIM` to your embedding model (1536 for
   text-embedding-3-small; 3072 for -3-large, which needs a `dimensions` parameter
   or float16).
-- `.env` is git-ignored (it holds your key). `load_docs.sql` is safe to commit
+- `.env` is git-ignored (it holds your key). `01_load_docs.sql` is safe to commit
   (placeholders only, no secrets).

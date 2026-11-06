@@ -1,6 +1,6 @@
 # Block 3 demo — the prompt makeover
 
-Two variants of the **same** demo (slide 3.2.5): evolve one prompt from naive to
+Two variants of the **same** demo (slide 5.9 in the Portland order): evolve one prompt from naive to
 production-quality T-SQL on the Wake County schema, opening with a 2-minute
 "spot the hallucination" hook. Pick by connectivity — the **task, the prompts, and
 the lessons are identical**; only execution differs.
@@ -8,7 +8,7 @@ the lessons are identical**; only execution differs.
 | Variant | File | Use when |
 |---------|------|----------|
 | **Online** | [`claude-code-online.md`](claude-code-online.md) | Internet is solid — drive **Claude Code in VS Code** live (optionally run each query against the container to show it fail, then pass). |
-| **Offline** | [`prompt-makeover-offline.md`](prompt-makeover-offline.md) | No/var­iable internet, or a recorded talk — pre-captured outputs, just narrate. |
+| **Offline** | [`prompt-makeover-offline.md`](prompt-makeover-offline.md) | No/variable internet, or a recorded talk — pre-captured outputs, just narrate. |
 
 Shared context: [`schema.sql`](schema.sql) — the structure-only schema you hand the
 model at step **v2**. It intentionally omits the `Severity` values and the
